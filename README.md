@@ -6,7 +6,8 @@ Exemplo básico de pub/sub no broker mqtt com JS, o protocolo mqtt é muito util
 ## Broker MQTT 
 Foi utilizado o HiveMQ como broker pois da suporte a websckets no SO windows mas pode ser usado o Mosquitto para o linux ou qualquer outro broker de preferencia.
 
-## Configuração
+## Configuração e instalação
+- git clone https://github.com/jamirperoba/MQTT_pub_sub.git 
 - Configurar porta, host, topico e etc no arquivo /assets/config.js
 - Executar index.html
 
