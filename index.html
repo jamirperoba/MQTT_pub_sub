@@ -7,14 +7,19 @@
 <body style="font-family: sans-serif;">
 	<div>
 		<input type="button" id="connect" value="Conectar">
-		<span>Status:<span id="status">Desconectado!!!</span></span>
+		<p>
+			Status:
+			<span id="status">Desconectado!!!</span>
+			Client ID:
+			<span id="client_id"></span>
+		</p>
 		<p>
 			<input type="text" id="topic_pub">
 			<input type="text" id="message">
 			<input type="button" id="publicar" value="Publicar">
 		</p>
 		<p>
-			<input type="text" id="topic_sub">
+			<input type="text" id="topic_sub" value="#">
 			<input type="button" id="subscrever" value="Subscrever">
 		</p>
 		<p>
@@ -28,17 +33,21 @@
 	<script type="text/javascript" src="assets/mqttws31.js"></script>
 	<script type="text/javascript">
 		var topico = "#";
+		$("#topic_pub,#topic_sub,#message,#publicar,#subscrever").attr('disabled', true);
 		function MQTTConnect(){
 			if (typeof path == "undefined") {
 				path = '/mqtt';
 			}
-			client = new Paho.MQTT.Client(host, port, path, "clientId");
+			client_id = Math.floor((Math.random() * 100) + 1).toString();
+			$("#client_id").html(client_id);
+			client = new Paho.MQTT.Client(host, port, path, 'client_id');
 			client.onConnectionLost = onConnectionLost;
 			client.onMessageArrived = onMessageArrived;
 
 			client.connect({onSuccess:onConnect});
 
 			function onConnect() {
+				$("#topic_pub,#topic_sub,#message,#publicar,#subscrever").attr('disabled', false);
 				$('#status').html('Conectado em ' + host + ':' + port + path);
 				console.log("onConnect");
 				client.subscribe(topico);
@@ -47,6 +56,7 @@
 
 			function onConnectionLost(responseObject) {
 				if (responseObject.errorCode !== 0) {
+					$("#topic_pub,#topic_sub,#message,#publicar,#subscrever").attr('disabled', true);
 					$('#status').html("Conexão perdida:"+responseObject.errorMessage);
 					console.log("Conexão perdida:"+responseObject.errorMessage);
 				}
@@ -70,12 +80,8 @@
 				$("#topic_pub").focus();
 			}
 		});
-		$("#subscrever").click(function(){
+		$("#subscrever,#connect").click(function(){
 			topico = $("#topic_sub").val();
-			MQTTConnect();
-		});
-
-		$("#connect").click(function(){
 			MQTTConnect();
 		});
 		$("#delete").click(function(){
