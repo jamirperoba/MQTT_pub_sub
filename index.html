@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="utf-8">
+	<title>PUB/SUB MQTT</title>
+</head>
+<body>
+	<div>
+		<input type="button" id="conect" value="Conectar">
+		<span>Status:<span id="status"></span></span>
+		<p>
+			<input type="text" id="topic_pub">
+			<input type="text" id="message">
+			<input type="button" id="publicar" value="Publicar">
+		</p>
+		<p>
+			<input type="text" id="topic_sub">
+			<input type="button" id="subscrever" value="Subscrever">
+		</p>
+		<p>
+			<span>Monitor:</span>
+			<span id="monitor"></span>
+		</p>
+	</div>
+	<script type="text/javascript" src="assets/config.js"></script>
+	<script type="text/javascript" src="assets/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="assets/mqttws31.js"></script>
+	<script type="text/javascript">
+		function MQTTConnect(topico){
+			if (typeof path == "undefined") {
+				path = '/mqtt';
+			}
+			client = new Paho.MQTT.Client(host, port, path, "clientId");
+			client.onConnectionLost = onConnectionLost;
+			client.onMessageArrived = onMessageArrived;
+
+			client.connect({onSuccess:onConnect});
+
+			function onConnect() {
+				$('#status').html('Conectado em ' + host + ':' + port + path);
+
+				console.log("onConnect");
+				client.subscribe('topico');
+				message = new Paho.MQTT.Message("Hello");
+				message.destinationName = 'topico';
+				client.send(message);
+			}
+
+			function onConnectionLost(responseObject) {
+				if (responseObject.errorCode !== 0) {
+					$('#status').html("Conexão perdida:"+responseObject.errorMessage);
+					console.log("Conexão perdida:"+responseObject.errorMessage);
+				}
+			}
+			//chamado quando recebe uma menssagem
+			function onMessageArrived(message) {
+				$("#monitor").append("tópico:"+message.destinationName +"Mensagem:"+ message.payloadString+"<br>");
+				console.log("mensagem que chegou:"+message.payloadString);
+			}
+		}
+		function publicar(destino,mensagem){
+			message = new Paho.MQTT.Message(mensagem);
+			message.destinationName = destino;
+			client.send(message);
+		}
+		$("#publicar").click(function(){
+			console.log("sas");
+			publicar($('#topic_pub').val(),$('#message').val());
+		});
+		topico = "#";
+		MQTTConnect(topico);
+	</script>
+</body>
+</html>
